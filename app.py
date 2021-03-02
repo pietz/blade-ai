@@ -38,7 +38,7 @@ for f in files:
             res_arr = img_arr * msk_arr
             res_arr = res_arr.astype(np.uint8)
             res = Image.fromarray(res_arr)
-            right.image(msk, use_column_width=True)
+            right.image(res, use_column_width=True)
         else:  # Classification
             prob_dict = json.loads(response.content)
             right.bar_chart(pd.DataFrame.from_dict(prob_dict, orient="index"))
