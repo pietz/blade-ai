@@ -1,4 +1,5 @@
 import streamlit as st
+import numpy as np
 import pandas as pd
 from PIL import Image
 import requests
@@ -32,6 +33,11 @@ for f in files:
         left.image(img, use_column_width=True)
         if "Segmentation" in m:
             msk = Image.open(io.BytesIO(response.content))
+            img_arr = np.array(img)
+            msk_arr = np.array(msk)[..., None] / 255.0
+            res_arr = img_arr * msk_arr
+            res_arr = res_arr.astype(np.uint8)
+            res = Image.fromarray(res_arr)
             right.image(msk, use_column_width=True)
         else:  # Classification
             prob_dict = json.loads(response.content)
