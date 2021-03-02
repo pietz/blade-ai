@@ -35,7 +35,7 @@ for f in files:
             msk = Image.open(io.BytesIO(response.content))
             img_arr = np.array(img)
             msk_arr = np.array(msk)[..., None] / 255.0
-            msk_arr = (msk_arr > 0.5).astype(np.float64)
+            # msk_arr = (msk_arr > 0.5).astype(np.float64)
             res_arr = img_arr * msk_arr
             res_arr = res_arr.astype(np.uint8)
             res = Image.fromarray(res_arr)
