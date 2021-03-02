@@ -20,10 +20,13 @@ files = st.sidebar.file_uploader("Select Image File(s)", accept_multiple_files=T
 
 for f in files:
     img = Image.open(f).convert("RGB")
-    w, h = 800, int(img.size[1] / img.size[0] * 800)
+    size = img.size
+    w = 480
+    h = int(img.size[1] / img.size[0] * w)
     img = img.resize((w, h))
-    f.seek(0)
-    response = requests.post(url=url, data=f.read(), headers=headers)
+    body = io.BytesIO()
+    img.save(body, format="JPEG")
+    response = requests.post(url=url, data=body.getvalue(), headers=headers)
     if response.status_code == 200:
         left, right = st.beta_columns(2)
         left.image(img, use_column_width=True)
