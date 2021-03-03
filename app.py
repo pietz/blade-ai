@@ -5,7 +5,7 @@ from PIL import Image
 import requests
 import io, json
 
-models = {
+phases = {
     "P1 - Blade Segmentation": "https://dwtoc-ai.azurewebsites.net/api/p1?code=b4JeF3Sy0OVq13aBga1CPPpxaHYGNim99pHipZigaLi23EEkY3WW9A%3D%3D",
     "P3 - Damage Classification": "https://dwtoc-ai.azurewebsites.net/api/p3?code=kGdcP4HM4CPnCiA2DWUcc%2F4xvabbz5ORSwzXhh4u1hBldrqwtvtw5Q%3D%3D",
 }
@@ -15,8 +15,13 @@ headers = {"Content-Type": "application/octet-stream"}
 
 st.sidebar.image(Image.open("lhind_blue.png"), use_column_width=True)
 # st.sidebar.title("DWTOC AI")
-m = st.sidebar.selectbox("Select a model", list(models.keys()))
-url = models[m]
+p = st.sidebar.selectbox("Select a Phase", list(phases.keys()))
+url = phases[p]
+if "Segmentation" in p:
+    model = st.sidebar.selectbox("Select a Model", ["ENet", "U2Net"])
+    model = "&model=" + model.lower()
+else:
+    model = ""
 files = st.sidebar.file_uploader("Select Image File(s)", accept_multiple_files=True)
 
 for f in files:
@@ -27,11 +32,11 @@ for f in files:
     img = img.resize((w, h))
     body = io.BytesIO()
     img.save(body, format="JPEG")
-    response = requests.post(url=url, data=body.getvalue(), headers=headers)
+    response = requests.post(url=url + model, data=body.getvalue(), headers=headers)
     if response.status_code == 200:
         left, right = st.beta_columns(2)
         left.image(img, use_column_width=True)
-        if "Segmentation" in m:
+        if "Segmentation" in p:
             msk = Image.open(io.BytesIO(response.content))
             img_arr = np.array(img)
             msk_arr = np.array(msk)[..., None] / 255.0
